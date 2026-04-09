@@ -1,0 +1,104 @@
+---
+- name:
+  hosts:
+  - node
+  tasks:
+  - name: config yum
+    copy:
+      src: /etc/yum.repos.d/
+      dest: /etc/
+      owner: root
+      group: root
+      mode: '0644'
+  - name: initial Server
+    yum:
+      name:
+        - vim
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
+        - net-tools
+        - bash-completion
+        - curl
+        - iptables
+        - sysstat
+        - wget
+        - git
+        - tree
+        - iptables
+        - ipset
+        - bridge-utils
+        - ipvsadm
+        - docker-ce
+      state: present
+  - name: remove Service
+    yum:
+      name:
+        - firewalld
+        - firewalld-filesystem
+        - postfix
+      state: absent
+  - name: config daemon.json
+    lineinfile:
+      path: /etc/docker/daemon.json
+      line: "{{ item }}"
+      create: yes
+    loop: ["{", "\"registry-mirrors\": [\"https://ruo7qi06.mirror.aliyuncs.com\"]" ,"}"]
+  - name: enable docker
+    service:
+      name: docker
+      enabled: yes
+      state: restarted
+  - name: swap
+    lineinfile:
+      path: /etc/fstab
+      regexp: "swap"
+      state: absent
+  - name: selinux disable
+    lineinfile:
+      path: /etc/selinux/config
+      regexp: "^SELINUX="
+      line: 'SELINUX=disabled'
+  - name: selinux disable
+    selinux:
+      state: disabled
+  - name: copy hosts apply to all servers
+    copy:
+      src: /etc/hosts
+      dest: /etc/
+      owner: root
+      group: root
+      mode: '0644'
+  - name: touch k8s.conf file
+    file:
+      path: /etc/sysctl.d/kubernetes.conf
+      state: touch
+      mode: '0644'
+  - name: config k8s.conf file
+    lineinfile:
+      path: /etc/sysctl.d/kubernetes.conf
+      line: "{{ item }}"
+      create: yes
+    loop: ["net.bridge.bridge-nf-call-iptables=1", "net.bridge.bridge-nf-call-ip6tables=1", "net.ipv4.ip_forward=1", "net.ipv4.tcp_tw_recycle=0", "vm.overcommit_memory=1", "net.ipv6.conf.all.disable_ipv6=1", "vm.panic_on_oom=0" ]
+  - name: modprobe br_netfilter
+    modprobe:
+      name: br_netfilter
+      state: present
+  - name: sysctl -p /etc/sysctl.d/kubernetes.conf
+    sysctl:
+      name: net.ipv4.ip_forward
+      value: 1
+      sysctl_file: /etc/sysctl.d/kubernetes.conf
+      reload: yes
+      state: present
+      sysctl_set: yes
+  - name: Create /etc/docker/daemon.json
+    file:
+      path: /etc/docker/daemon.json
+      state: touch
+      mode: '0644'
+  - name: bash-completion for kubeadm
+    shell: kubeadm completion bash > /etc/bash_completion.d/kubeadm
+  - name: bash-completion for  kubectl
+    shell: kubectl completion bash > /etc/bash_completion.d/kubectl
+

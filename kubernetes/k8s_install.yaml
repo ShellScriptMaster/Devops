@@ -1,0 +1,12 @@
+---
+- name:
+  hosts:
+  - node
+  tasks:
+  - name: install kubeadm kubelet kubectl
+    yum:
+      name:
+        - kubeadm
+        - kubelet
+        - kubectl
+      state: present
