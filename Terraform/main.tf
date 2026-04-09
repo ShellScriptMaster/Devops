@@ -1,7 +1,7 @@
 provider  "alicloud" {
   region = "cn-hongkong"  
-  access_key = "LTAI5tHhog54BzQpDUeeqX4d"
-  secret_key = "kKfHzfFo4pgvQwSu8NdcC61aXsjqol"
+  access_key = ""
+  secret_key = ""
 }
 
 variable "cidr-block-list" {
