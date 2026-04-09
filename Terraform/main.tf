@@ -1,7 +1,15 @@
 provider  "alicloud" {
   region = "cn-hongkong"  
-  access_key = ""
-  secret_key = ""
+  access_key = var.ak
+  secret_key = var.sk
+}
+
+variable "ak" {
+  description = "this is the variable for access key"
+}
+
+variable "sk" {
+  description = "this is the variable for secret key"
 }
 
 variable "cidr-block-list" {
