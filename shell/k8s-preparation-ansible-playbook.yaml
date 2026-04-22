@@ -101,4 +101,10 @@
     shell: kubeadm completion bash > /etc/bash_completion.d/kubeadm
   - name: bash-completion for  kubectl
     shell: kubectl completion bash > /etc/bash_completion.d/kubectl
-
+  - name: install kubeadm kubelet kubectl
+    yum:
+      name:
+        - kubeadm
+        - kubelet
+        - kubectl
+      state: present
