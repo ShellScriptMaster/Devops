@@ -3,3 +3,4 @@
 /Terraform/*.tfstate.*
 /Terraform/.terraform.lock.hcl
 /Terraform/Credential.txt
+/kubernetes/images/*

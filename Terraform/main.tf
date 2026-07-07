@@ -1,27 +1,3 @@
-provider "alicloud" {
-  access_key = var.akey
-  secret_key = var.skey
-  region = "cn-hongkong"
-}
-
-variable "akey" {}
-variable "skey" {}
-variable "hostpassword" {}
-variable "dev-cidr-block-obj" {
-  type = list(object({
-    name = string
-    cidr-block = string
-  }))
-}
-
-variable "instance_info" {
-  type = list(object({
-    instance_name = string
-    host_name = string
-    private_ip = string
-  }))
-}
-
 data "alicloud_zones" "alicloud-zones-info" {
   available_resource_creation = "VSwitch"
 }
@@ -93,6 +69,7 @@ data "alicloud_images" "data-dev-ali-img" {
   owners     = "system"
 }
 
+ 
 resource "alicloud_instance" "ecs-dev-instance-0" {
   # cn-hongkong
   availability_zone = data.alicloud_zones.alicloud-zones-info.zones.0.id
@@ -110,8 +87,8 @@ resource "alicloud_instance" "ecs-dev-instance-0" {
   image_id                   = data.alicloud_images.data-dev-ali-img.ids[0]
   instance_name              = var.instance_info[0].instance_name
   vswitch_id                 = alicloud_vswitch.subnet-dev.id
-  internet_charge_type       = "PayByTraffic"
-  internet_max_bandwidth_out = 100
+  # internet_charge_type       = "PayByTraffic"
+  # internet_max_bandwidth_out = 100
   instance_charge_type       = "PostPaid"
   spot_strategy              = "NoSpot"
   host_name                  = var.instance_info[0].host_name
@@ -133,7 +110,7 @@ resource "alicloud_instance" "ecs-dev-instance-1" {
   system_disk_performance_level  = "PL0"
   description                = "Alicloud ecs develop instance 1"
   private_ip                 = var.instance_info[1].private_ip
-  image_id                   = data.alicloud_images.data-dev-ali-img.ids[0]
+  image_id                   = "m-j6cgrzdxemlrnygjdcvs"
   instance_name              = var.instance_info[1].instance_name
   vswitch_id                 = alicloud_vswitch.subnet-dev.id
   internet_charge_type       = "PayByTraffic"
@@ -159,7 +136,7 @@ resource "alicloud_instance" "ecs-dev-instance-2" {
   system_disk_performance_level  = "PL0"
   description                = "Alicloud ecs develop instance 2"
   private_ip                 = var.instance_info[2].private_ip
-  image_id                   = data.alicloud_images.data-dev-ali-img.ids[0]
+  image_id                   = "m-j6cgrzdxemlrnygjdcvs"
   instance_name              = var.instance_info[2].instance_name
   vswitch_id                 = alicloud_vswitch.subnet-dev.id
   internet_charge_type       = "PayByTraffic"
@@ -171,28 +148,28 @@ resource "alicloud_instance" "ecs-dev-instance-2" {
   dry_run                    = false 
 }
 
-resource "alicloud_instance" "ecs-dev-instance-3" {
-  # cn-hongkong
-  availability_zone = data.alicloud_zones.alicloud-zones-info.zones.0.id
-  security_groups   = alicloud_security_group.dev-sec-group.*.id
+# resource "alicloud_instance" "ecs-dev-instance-3" {
+#   # cn-hongkong
+#   availability_zone = data.alicloud_zones.alicloud-zones-info.zones.0.id
+#   security_groups   = alicloud_security_group.dev-sec-group.*.id
 
-  # series III
-  instance_type              = "ecs.c8y.large"
-  system_disk_category       = "cloud_essd"
-  system_disk_name           = "ecs-sys-disk-0"
-  system_disk_size           = 40
-  system_disk_description    = "alicloud ecs system disk 0 "
-  system_disk_performance_level  = "PL0"
-  description                = "Alicloud ecs develop instance 2"
-  private_ip                 = var.instance_info[3].private_ip
-  image_id                   = data.alicloud_images.data-dev-ali-img.ids[0]
-  instance_name              = var.instance_info[3].instance_name
-  vswitch_id                 = alicloud_vswitch.subnet-dev.id
-  internet_charge_type       = "PayByTraffic"
-  internet_max_bandwidth_out = 0
-  instance_charge_type       = "PostPaid"
-  spot_strategy              = "NoSpot"
-  host_name                  = var.instance_info[3].host_name
-  password                   = var.hostpassword
-  dry_run                    = false 
-}
+#   # series III
+#   instance_type              = "ecs.c8y.large"
+#   system_disk_category       = "cloud_essd"
+#   system_disk_name           = "ecs-sys-disk-0"
+#   system_disk_size           = 40
+#   system_disk_description    = "alicloud ecs system disk 0 "
+#   system_disk_performance_level  = "PL0"
+#   description                = "Alicloud ecs develop instance 2"
+#   private_ip                 = var.instance_info[3].private_ip
+#   image_id                   = m-j6cgrzdxemlrnygjdcvs
+#   instance_name              = var.instance_info[3].instance_name
+#   vswitch_id                 = alicloud_vswitch.subnet-dev.id
+#   internet_charge_type       = "PayByTraffic"
+#   internet_max_bandwidth_out = 0
+#   instance_charge_type       = "PostPaid"
+#   spot_strategy              = "NoSpot"
+#   host_name                  = var.instance_info[3].host_name
+#   password                   = var.hostpassword
+#   dry_run                    = false 
+# }

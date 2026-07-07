@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod 
+metadata: 
+  name: init-c-1
+  namespace: myns
+  labels:
+    app: initc
+spec:
+  containers:
+  - name: myapp-containers
+    image: docker.1ms.run/amd64/busybox:latest
+    command: ['sh','-c','echo the app is running ! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: docker.1ms.run/amd64/busybox:latest
+    command: ['sh','-c','until nslookup myservice; do echo waiting for myservice ; sleep 2 ; done ;']
+  - name: init-mydb
+    image: docker.1ms.run/amd64/busybox:latest
+    command: ['sh','-c','until nslookup mydb; do echo waiting for mydb ; sleep 2 ; done ;']
+  - name: myapp-1
+    image: docker.1ms.run/library/nginx:alpine
