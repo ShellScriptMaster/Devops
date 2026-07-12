@@ -150,3 +150,6 @@ registry.aliyuncs.com/google_containers/kube-apiserver:v1.29.15
 registry.aliyuncs.com/google_containers/kube-controller-manager:v1.29.15
 registry.aliyuncs.com/google_containers/kube-proxy:v1.29.15
 registry.aliyuncs.com/google_containers/kube-scheduler:v1.29.15
+
+
+kubectl api-resources -- 查看k8s 支持的所有资源类型

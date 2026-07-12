@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod 
+metadata: 
+  name: lifecycle-exec-pod-1
+  namespace: myns
+spec:
+  containers:
+  - name: myapp-1
+    image: docker.1ms.run/library/nginx:alpine
+    lifecycle:
+      postStart:
+        exec:
+          command: ["/bin/sh", "-c", "echo postStart > /usr/share/message"]
+      preStop:
+        exec:
+          command: ["/bin/sh", "-c", "echo preStop > /usr/share/message"]
+# postStart 
+#     spec:
+#     containers:
+#         - name: app
+#         image: nginx:alpine
+#         lifecycle:
+#             postStart:
+#             exec:
+#                 command:
+#                 - /bin/sh
+#                 - -c
+#                 - |
+#                     echo "[$(date)] Container started" >> /var/log/lifecycle.log
+#                     # 模拟服务注册
+#                     curl -X POST http://service-registry/register \
+#                     -d '{"pod": "poststart-demo", "ip": "$(POD_IP)"}' || exit 1
+# preStop 
+#     spec:
+#     terminationGracePeriodSeconds: 60  # 总宽限期 60 秒
+#     containers:
+#         - name: app
+#         lifecycle:
+#             preStop:
+#             exec:
+#                 command: ["/bin/sh", "-c", "sleep 45"]  # PreStop 执行 45 秒

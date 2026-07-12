@@ -15,31 +15,31 @@ pod生命周期
         用户下达缩容命令 APIServer记录deletionTimeStamp pod进入terminating状态 pod从serviceEndpoint中移除不再接受新流量
         preStop执行 (kubelet必须等待其完成再发送SIGTERM信号到主容器)
         Kubelet向主容器发送SIGTERM信号 等待terminationGracePeriodSeconds(默认30s,preStop执行时间也计入其中) 若30s后进程未退出则直接kill 
+    4. 探针 
+        探针由kubelet 对容器进行定期诊断 通过调用由容器实现的 Handler 包含3种类型的处理程序
+            ExecAction 在容器内执行指定命令 如果命令返回码为200 为诊断成功
+            TCPSocketAction 对指定端口的容器IP进行TCP检查 如果端口打开则为成功
+            HTTPGetAction 对指定端口和路径的容器IP地址进行http Get请求 如果响应码大于200小于400则为成功
+        每次探测都会得到以下3种结果之一
+            成功 容器通过诊断
+            失败 容器未通过诊断
+            未知 诊断失败 不会采取任何行动
+        startupProbe 是否已经启动 保障存活探针执行时不会因为时间设定问题导致 无限死亡/延迟很长 的死循环情况
+        livenessProbe 是否存活 如果pod为失败状态则重启容器 容器restart +1  如果不指定的话会发生容器在运行但是无法提供服务的情况
+        readinessProbe 是否准备提供服务 (不添加就绪探测 默认就绪 )
+            initialDelaySeconds 容器启动后多少秒后探针开始工作 默认0s
+            periodSeconds 执行探测时间间隔 默认10s 最小1s
+            timeoutSeconds 执行检测请求后等待响应的超时时间 默认1s 最小1s
+            successThreshold 探针检测失败后认为成功的最小连接成功数 默认为1 最小为1 
+            failureThreshold 探针检测失败重试次数 重试一定次数后将认定失败 默认为3 最小为1
+    5. 钩子Hook postStart/preStop
+        基于Linux命令 kubernetes/resourceFile/pod/1-4hook-1.yaml
+        基于http get  kubernetes/resourceFile/pod/1-4hook-2.yaml
+        k8s 中理想的状态是pod 优雅释放 Graceful destroy 但是有时候会出现以下因素导致pod 无法优雅释放 
+            pod卡死
+            退出逻辑有bug
+            代码问题导致执行命令没有结果 
+        针对以上问题可以通过pod.spec.terminationGracePeriodSeconds 定义最多容忍时间, 超过时间后将直接通过kill -9 进行强行退出
 
-        postStart 
-            spec:
-            containers:
-                - name: app
-                image: nginx:alpine
-                lifecycle:
-                    postStart:
-                    exec:
-                        command:
-                        - /bin/sh
-                        - -c
-                        - |
-                            echo "[$(date)] Container started" >> /var/log/lifecycle.log
-                            # 模拟服务注册
-                            curl -X POST http://service-registry/register \
-                            -d '{"pod": "poststart-demo", "ip": "$(POD_IP)"}' || exit 1
-
-        preStop 
-            spec:
-            terminationGracePeriodSeconds: 60  # 总宽限期 60 秒
-            containers:
-                - name: app
-                lifecycle:
-                    preStop:
-                    exec:
-                        command: ["/bin/sh", "-c", "sleep 45"]  # PreStop 执行 45 秒
-
+控制器
+    
